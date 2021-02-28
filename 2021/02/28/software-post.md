@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     list_clear(list);
     mem_free(list);
 
-    // Uninitialize allocator and report leaks using mem_leak_detected function
+    // Uninitialize allocator and report leaks using mem_leak_detected
 
     mem_uninit(mem_leak_detected, NULL);
 
