@@ -51,38 +51,38 @@ The skeleton of the main program is below. It parses the command line to see if 
 The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
 
 ```C
-int main(int argc, char **argv)
-{
-struct list *list;
+	int main(int argc, char **argv)
+	{
+	struct list *list;
 
-parse_args(argc, argv);  // Scan parameters to see if f_self_test flag should be set
+	parse_args(argc, argv);  // Scan parameters to see if f_self_test flag should be set
 
-if (f_self_test)
-{
-    // Use the standard error reporting for the platform: stderr for Linux and
-    // OutputDebugString() for Windows.  If the self test fails return -1.
+	if (f_self_test)
+	{
+	    // Use the standard error reporting for the platform: stderr for Linux and
+	    // OutputDebugString() for Windows.  If the self test fails return -1.
 
-    if (!self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
-	return -1;
-}
+	    if (!self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
+		return -1;
+	}
 
-// Initialize the allocator and create a list
+	// Initialize the allocator and create a list
 
-mem_init();
-list = mem_create(struct list);
-list_init(list);
+	mem_init();
+	list = mem_create(struct list);
+	list_init(list);
 
-// ...Run the program...
+	// ...Run the program...
 
-list_clear(list);
-mem_free(list);
+	list_clear(list);
+	mem_free(list);
 
-// Uninitialize allocator and report leaks using mem_leak_detected function
+	// Uninitialize allocator and report leaks using mem_leak_detected function
 
-mem_uninit(mem_leak_detected, NULL);
+	mem_uninit(mem_leak_detected, NULL);
 
-return 0;
-}
+	return 0;
+	}
 ```
 
 ### Self-Test Template
