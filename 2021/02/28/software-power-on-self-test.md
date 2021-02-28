@@ -3,6 +3,8 @@
 
 >_Abstract: A 'Power On Self Test (POST) framework for the C Programming Language is described wherein the framework allows the developer to create testing routines in the same translation unit as the code, assign testing routines to dependency layers, and ensures the testing code does not affect the size of the program at runtime._
 
+>_Reference: The code for this framework and a sample prgoram can be found [here](https://github.com/c-linkage/software-post)_
+
 After reading yet another article on Test Driven Development (TDD) or Unit Testing or some such thing, it set me off.  Just thinking about all of the effort that goes into testing gave me hives: evaluating different test frameworks and down-selecting, integrating the test framework into the build and deployment systems, developing the tests and mocks, making sure the actual code implements the same behavior of the mocks, scanning the testing logs for failures, etc.  It all just seemed to be just so much ... _activity_ ... that could be better spent, you know, _developing_.
 
 Now, don't get me wrong: **testing is important**.  But having been in development for 20 years before [Kent Beck popularized the concept of Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development), I had been forced to come up with my own system for making correct software: a rapid development cycle that interleaved coding and testing, sometimes including throw-away test harnesses.
@@ -13,7 +15,7 @@ It was then that I was struck by an idea:
 
 > **Hardware has a [Power On Self Test (POST)](https://en.wikipedia.org/wiki/Power-on_self-test) where successive layers are validated using the capabilities and functions of other already validated layers.  So why can't I have a "power on self test" for software? If I validate the low-level subsystems first, then I could validate successively higher level systems using those lower systems. This would give me both unit testing _and_ integration testing without having to write any mocks.**
 
-Oh yeah.  [Let's do this!](https://youtu.be/K2-3YacveiQ)!
+Oh yeah.  [Let's do this](https://youtu.be/K2-3YacveiQ)!
 
 ## Requirements
 
@@ -38,7 +40,7 @@ Item (5) was going to be challenging.  Although I cut my C programming teeth on 
 
 ## Final Product 
 
-Before delving into the implementation details, let's see the final product first.
+Before delving into the implementation details, let's see the final product first.  
 
 The sample program I developed to test the framework is a simple number guessing game where the user tries to guess one of the ten numbers selected at random from the range of 1 to 100. The numbers are selected and stored in a list whose elements are managed on the heap. 
 
