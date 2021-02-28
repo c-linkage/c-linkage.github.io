@@ -5,7 +5,7 @@
 
 After reading yet another article on Test Driven Development (TDD) or Unit Testing or some such thing, it set me off.  Just thinking about all of the effort that goes into testing gave me hives: evaluating different test frameworks and down-selecting, integrating the test framework into the build and deployment systems, developing the tests and mocks, making sure the actual code implements the same behavior of the mocks, scanning the testing logs for failures, etc.  It all just seemed to be just so much ... _activity_ ... that could be better spent, you know, _developing_.
 
-Now, don't get me wrong: **testing is important**.  But having been in development for 20 years before [Kent Beck popularized the concept of Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development), I has been forced to come up with my own system for making correct software: a rapid development cycle that interleaved coding and testing, sometimes including throw-away test harnesses.
+Now, don't get me wrong: **testing is important**.  But having been in development for 20 years before [Kent Beck popularized the concept of Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development), I had been forced to come up with my own system for making correct software: a rapid development cycle that interleaved coding and testing, sometimes including throw-away test harnesses.
 
 The reason I got mad after reading that article was because my project had hit a level of complexity where some kind of unit testing was becoming a necessity. Just _thinking_ about all of the effort required to back-fill tests for half a million lines of C and C# code... well, my brain (or was it my ego?) wasn't having it.
 
@@ -50,6 +50,7 @@ The skeleton of the main program is below. It parses the command line to see if 
 
 The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
 
+{% highlight C %}
     int main(int argc, char **argv)
     {
         struct list *list;
@@ -82,6 +83,7 @@ The program exits with a return value of -1 when the self-test fails. Returning 
      
         return 0;
     }
+{% endhighlight %}
 
 ### Self-Test Template
 
