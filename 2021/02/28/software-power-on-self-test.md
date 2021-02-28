@@ -1,5 +1,5 @@
 
-# Software POST
+# Software Power On Self-Test
 
 >_Abstract: A 'Power On Self Test (POST) framework for the C Programming Language is described wherein the framework allows the developer to create testing routines in the same translation unit as the code, assign testing routines to dependency layers, and ensures the testing code does not affect the size of the program at runtime._
 
