@@ -465,7 +465,8 @@ The `slftsti` section is divided into twelve subsections, ten of which contain t
 
 #define SELF_TEST_LEVEL_DEFAULT SELF_TEST_LEVEL_5
 
-// Forward declare all sections; unused sections are removed by the linker
+// Forward declare all sections.
+// Unused sections are removed by the linker
 
 #pragma section(SELF_TEST_LEVEL_1, read, shared)
 #pragma section(SELF_TEST_LEVEL_2, read, shared)
@@ -478,8 +479,9 @@ The `slftsti` section is divided into twelve subsections, ten of which contain t
 #pragma section(SELF_TEST_LEVEL_9, read, shared)
 #pragma section(SELF_TEST_LEVEL_10, read, shared)
 
-// Forward feclare the section that will contain read-only data, mostly the
-// strings used to print out test names and error messages.
+// Forward feclare the section that will contain 
+// read-only data, mostly the strings used to print 
+// out test names and error messages.
 
 #pragma section("slftstr", read, shared)
 ```
