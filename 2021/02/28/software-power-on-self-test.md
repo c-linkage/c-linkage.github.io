@@ -187,19 +187,21 @@ The self-test for the list shows a relatively simple test using only the default
 As mentioned in the last section, the memory allocator is a bit complex. Just as with the list, the plan for the allocator self-test begins by looking at the interface.
 
 ```c
-// Function pointer definition for reporting the location of a memory leak. 
-// An opaque 'data' pointer is also passed in from the mem_uninit() call in
-// case your specific implementation needs extra data like a file handle.
+// Function pointer definition for reporting the location of a memory
+// leak. An opaque 'data' pointer is also passed in from the 
+// mem_uninit() call in case your specific implementation needs extra 
+// data like a file handle.
 
 typedef void (*mem_report_pf)(const char *file, int line, void *data);
 
-// Initialize and uninitalize the memory subsystem. Use the reporting function
-// during uninitialization to output the leak locations.
+// Initialize and uninitalize the memory subsystem. Use the reporting
+// function during uninitialization to output the leak locations.
 
 extern void mem_init(void);
 extern int mem_uninit(mem_report_pf report, void *data);
 
-// Macros that allocate and release memory, wrapping the internal implementation
+// Macros that allocate and release memory that wrap the internal 
+// implementation
 
 #define mem_alloc(s) mem_alloc_internal((s), __FILE__, __LINE__)
 #define mem_free(p) mem_free_internal(p)
@@ -255,9 +257,12 @@ struct mem_self_test_data {
 Next, the reporting function is defined. In it, the leak location information -- the filename and line number of where the original allocation took place -- are captured into the `mem_self_test_data` structure. Take note of the `SELF_TEST_FUNC` macro in the function definition.
 
 ```c
-static void SELF_TEST_FUNC mem_report_self_test(const char *file, int line, void *data)
+static void SELF_TEST_FUNC mem_report_self_test(
+    const char *file, int line, void *data)
 {
-    struct mem_self_test_data *mstd = (struct mem_self_test_data *)data;
+    struct mem_self_test_data *mstd;
+    
+    mstd = (struct mem_self_test_data *)data;
 
     mstd->file = file;
     mstd->line = line;
@@ -312,8 +317,8 @@ The self-test reporting function has three arguments: a string message, a file n
 ```c
 typedef void (SELF_TEST_DECL *self_test_report_pf)(
     const char *msg,     // Message to report
-    const char *file,    // Filename from which error is reported
-    size_t line          // Line number in file reporting error
+    const char *file,    // Filename containing error
+    size_t line          // Line number in file
 );
 ```
 
@@ -581,10 +586,10 @@ int sys_self_test_run(self_test_report_pf report, unsigned flags)
     const struct self_test **test;
     int rc;
     
-    rc = 1;                         // Assume self-tests succeed
-    test = &win32_self_test_start;  // Start scanning at the first bookend
+    rc = 1;                         // Assume success
+    test = &win32_self_test_start;  // Scan from the first bookend
         
-    while(++test < &win32_self_test_end)  // Keep scanning until the second bookend
+    while(++test < &win32_self_test_end)  // Scanning to second bookend
     {
         // Look for non-null pointer to a descriptor
         
@@ -595,7 +600,8 @@ int sys_self_test_run(self_test_report_pf report, unsigned flags)
             if ((*test)->name != NULL) 
                 report((*test)->name, NULL, 0);
 
-            // Run the test and if the flags ask to stop on failure return immediately
+            // Run the test and if the flags ask to stop on failure
+	    // then return immediately
             
             if (!(*test)->func(report)) 
             {
@@ -604,8 +610,9 @@ int sys_self_test_run(self_test_report_pf report, unsigned flags)
                 rc = 0;
             }
             
-            // Use the built-in Microsoft C runtime memory-leak detector to report
-            // and leaks that occured during self-test
+            // Use the built-in Microsoft C runtime memory-leak 
+	    // detector to report and leaks that occured during 
+	    // self-test
             
             _CrtDumpMemoryLeaks();
         }
