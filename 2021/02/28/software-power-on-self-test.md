@@ -441,10 +441,12 @@ The `slftsti` section is divided into twelve subsections, ten of which contain t
 // Define the "bookends" for the initializer section
 
 #pragma section("slftsti$a", read, shared)
-__declspec(allocate("slftsti$a")) const struct self_test *win32_self_test_start = (struct self_test *)1;
+    __declspec(allocate("slftsti$a")) 
+    const struct self_test *win32_self_test_start = (struct self_test *)1;
 
 #pragma section("slftsti$z", read, shared)
-__declspec(allocate("slftsti$z")) const struct self_test *win32_self_test_end = (struct self_test *)1;
+    __declspec(allocate("slftsti$z")) 
+    const struct self_test *win32_self_test_end = (struct self_test *)1;
 
 // Define the names of the sections for each test level
 
