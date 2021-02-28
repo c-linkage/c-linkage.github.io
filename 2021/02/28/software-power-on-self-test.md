@@ -147,8 +147,8 @@ For this test, I chose to allocate the list on the stack instead of on the heap 
 ```c
 SELF_TEST(list, SELF_TEST_LEVEL_DEFAULT)
 {
-    struct list l_list;             // Allocate a list on the stack to avoid early heap use
-    struct list *list = &l_list;    // Get a pointer to the instance for convenience
+    struct list l_list;             // On the stack to avoid heap use
+    struct list *list = &l_list;    // Convenience pointer
     int rc = 0;
 
     // Initialize already-tested memory subsystem
@@ -163,7 +163,8 @@ SELF_TEST(list, SELF_TEST_LEVEL_DEFAULT)
     list_clear(list);
     SELF_TEST_ASSERT(list_count(list) == 0);
     
-    // Verify the memory allocator resets properly, failure here could corrupt the program!
+    // Verify the memory allocator resets properly.
+    // Failure here could corrupt the program!
     SELF_TEST_ASSERT(mem_uninit(NULL, NULL) == 1);
 
     rc = 1;
