@@ -50,7 +50,7 @@ The skeleton of the main program is below. It parses the command line to see if 
 
 The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
 
-```
+```C
 int main(int argc, char **argv)
 {
 struct list *list;
