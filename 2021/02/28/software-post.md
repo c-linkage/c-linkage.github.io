@@ -258,7 +258,7 @@ static void SELF_TEST_FUNC mem_report_self_test(const char *file, int line, void
     mstd->file = file;
     mstd->line = line;
 }
-``
+```
 
 This function is only used during testing,  and since one of the requirements for this framework was that testing code shouldn't mix with production code, the `SELF_TEST_FUNC` macro is used here to make sure the code gets installed into the correct code segment to avoid mixing test code with production code.
 
@@ -471,7 +471,7 @@ __declspec(allocate("slftsti$z")) const struct self_test *win32_self_test_end = 
 // strings used to print out test names and error messages.
 
 #pragma section("slftstr", read, shared)
-``
+```
 
 The sections declared for each level require a bit of explanation.
 
