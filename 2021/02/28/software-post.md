@@ -418,11 +418,11 @@ The self-test framework requires multiple sections, and so to group them togethe
 
 There are three primary code sections created under the Microsoft tool chain:
 
-    slftsti = "self test initializer" - array of function pointers to self tests
-    slftstt = "self test text" - executable code for all self tests
-    slftstr = "self test read-only" - constant strings used to report self test errors
+* `slftsti` = "self test initializer" - array of function pointers to self tests
+* `slftstt` = "self test text" - executable code for all self tests
+* `slftstr` = "self test read-only" - constants (e.g. strings) used during the self-test
 
-The `slftsti` section is subdivided into twelve subsections, ten of which contain the arrays of pointers to the self tests; the last two subsections act as "bookends" that bound the area of memory to be searched for function pointers.
+The `slftsti` section is divided into twelve subsections, ten of which contain the arrays of pointers to the self tests; the last two subsections act as "bookends" that bound the section of memory to be searched for function pointers.
 
 ```c
 // Always use C linkage
@@ -477,7 +477,7 @@ The sections declared for each level require a bit of explanation.
 
 The Microsoft tool chain allows section names with `$` in them. The part of the identifier before the `$` is the final name of the section, and the part after the `$` is used to order the contents of that section alphabetically.  For example, if there are two sections called `test$a` and `test$b` then the linker will create one section called `test` with the contents of `test$a` placed before the contents of `test$b` in the section.
 
-A challenge with dealing with the Microsoft tool chain is that there are no alignment guarantees when the section is finalized. That means that there could be a gap of arbitrary size in section `test` between the contents of `test$a` and `test$b`". What we _are_ guaranteed is that the padding will always be zero.  This is why the bookend pointers `win32_self_test_start` and `win32_self_test_end` are initialized to the "illegal" value of 1 instead of NULL, so they can be distinguished from the padding.
+A challenge when dealing with the Microsoft tool chain is that there are no padding guarantees when the section is finalized. That means that there could be a gap of arbitrary size in section `test` between the contents of `test$a` and `test$b`". What we _are_ guaranteed is that the padding will always be zero.  This is why the bookend pointers `win32_self_test_start` and `win32_self_test_end` are initialized to the "illegal" non-NULL value of 1 to distinguish them from the padding.
 
 Before we can run a self-test, however, we have to _define_ a self-test and get it into the right section using the following macros:
 
@@ -497,7 +497,7 @@ Before we can run a self-test, however, we have to _define_ a self-test and get 
 The first three macros encapsulate the compiler-specific text and serve to make the `SELF_TEST()` macro easier to read.  
 
 * `SELF_TEST_FUNC` decorates a function to give it the right calling convention `SELF_TEST_DECL` and to place it into the self-test code segment `slftstt`.
-* `SELF_TEST_RO` decorates a variable to place it into the self-test read-only section`slftstr`; it is important that all variables decorated with `SELF_TEST_RO` are also decorated as `const` to avoid section permission mismatches.
+* `SELF_TEST_RO` decorates a variable to place it into the self-test read-only section`slftstr`; it is important that variables decorated with `SELF_TEST_RO` are also decorated with `const` when necessary to avoid section permission mismatches.
 * `SELF_TEST_LEVEL(l)` decorates the pointer to the self-test descriptor to place it into the self-test initializer section appropriate for the testing level.
 
 Given the first three macros, the `SELF_TEST()` macro is a little easier to understand:
@@ -545,9 +545,9 @@ int __declspec(code_seg("slftstt")) __cdecl self_test_jokes(self_test_report_pf 
 }
 ```
 
-It should be clear now that the initializer section `slftsti` gets populated with pointers to self-test descriptors. The decriptor pointers within the section are partially ordered: all Level 1 pointers are installed before all Level 2 pointers, but the order of descriptor pointers _within_ a level is arbitrary. The reason for installing pointers in the initializer rather than the self-test descriptors themselves is that the alignment and padding requirements for pointers is well known so it make scanning the section much easier.
+It should be clear now that the initializer section `slftsti` gets populated with pointers to self-test descriptors. The decriptor pointers within the section are partially ordered: all Level 1 pointers are installed before all Level 2 pointers, but the order of descriptor pointers _within_ a level is arbitrary. The reason for installing pointers in the initializer rather than the self-test descriptors themselves is that the alignment and padding requirements for pointers are well known, and this makes scanning the section much easier.
 
-For our sample program, we can confirm that the descriptor pointers are in the correct section by using `dumpbin`:
+For the sample program, the fact that the descriptor pointers are ordered correctly and are in the right section can be confirmed by using `dumpbin`:
 
     SECTION HEADER #6
      slftsti name
@@ -567,7 +567,7 @@ For our sample program, we can confirm that the descriptor pointers are in the c
     RAW DATA #6
       00426000: 01 00 00 00 68 4F 42 00 1C 40 42 00 01 00 00 00  ....hOB..@B.....
 
-This example is compiled fora 32-bit architecture, so each pointer takes four bytes.  The first four bytes and the last four bytes are the bookend pointers used to bound the section. Bytes 5 through 8 form the pointer 0x00424F68 which points  to the memory system self-test; bytes 9 through 12 form the pointer 0x0042401C which points to the list system self-test.  It just so happens that in this example there are no gaps in the initializer section, so there will be no NULL pointers to skip. But having gaps in the initializer sectionis quite common, so the code must be prepared for that.
+Since this example was compiled for the 32-bit x86 architecture, each pointer takes four bytes. The first four bytes and the last four bytes are the bookend pointers used to bound the section. Bytes 5 through 8 form the pointer 0x00424F68 that points to the memory system self-test, and bytes 9 through 12 form the pointer 0x0042401C that points to the list system self-test.  It just so happens that there are no gaps in the initializer section, so there are no NULL pointers to skip. But having gaps in the initializer section is quite common, so the code must be prepared for that.
 
 Actually _running_ the self-tests is rather simple: scan the self-test initializer section `slftsti` between the bookends looking for non-NULL pointers. When a non-NULL pointer is found, interpret that pointer as the address of a self-test descriptor. Print the descriptor message and then run the self-test.
 
