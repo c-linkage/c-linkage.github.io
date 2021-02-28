@@ -101,7 +101,7 @@ SELF_TEST(<name-of-subsystem-under-test>, <self-test-level>)
     int rc = 0;
         
     // Run one or more tests
-    // When a failure causes a jump to the failure label
+    // Assertion failure causes a jump to the 'failure' label
         
     SELF_TEST_ASSERT(<test-expression>);
 
