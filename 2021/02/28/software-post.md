@@ -55,12 +55,14 @@ int main(int argc, char **argv)
 {
     struct list *list;
  
-    parse_args(argc, argv);  // Scan parameters to see if f_self_test flag should be set
+    // Scan parameters to see if f_self_test flag should be set
+    parse_args(argc, argv);  
 
     if (f_self_test)
     {
-        // Use the standard error reporting for the platform: stderr for Linux and
-        // OutputDebugString() for Windows.  If the self test fails return -1.
+        // Use the standard error reporting for the platform: 
+	// stderr for Linux and OutputDebugString() for Windows.  
+	// If the self test fails return -1.
 
         if (!self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
 	    return -1;
@@ -96,7 +98,8 @@ SELF_TEST(<name-of-subsystem-under-test>, <self-test-level>)
 {
     int rc = 0;
         
-    // Run one or more tests, where a failure causes a jump to the failure label
+    // Run one or more tests
+    // When a failure causes a jump to the failure label
         
     SELF_TEST_ASSERT(<test-expression>);
 
