@@ -19,11 +19,11 @@ Oh yeah.  [Let's do this!](https://youtu.be/K2-3YacveiQ)!
 
 I quickly hashed out my requirements:
 
-1) Running the tests should be optional.
-2) The testing code should not affect the size of the program at runtime, but it could inflate the size of the binary.
-3) I should be able to create tests in whatever translation unit I wanted.
-4) Test functions should not require "registration" with some master test coordinator.
-5) The framework should be cross-platform (Windows and Linux), but it's okay if it only works on x86 or x64 hardware.
+1. Running the tests should be optional.
+2. The testing code should not affect the size of the program at runtime, but it could inflate the size of the binary.
+3. I should be able to create tests in whatever translation unit I wanted.
+4. Test functions should not require "registration" with some master test coordinator.
+5. The framework should be cross-platform (Windows and Linux), but it's okay if it only works on x86 or x64 hardware.
 
 Item (1) was easy: pass a command-line option to the program that would trigger the Software POST.
 
@@ -50,40 +50,40 @@ The skeleton of the main program is below. It parses the command line to see if 
 
 The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
 
-{% highlight C %}
-    int main(int argc, char **argv)
-    {
-        struct list *list;
-        
-        parse_args(argc, argv);  // Scan parameters to see if f_self_test flag should be set
-    
-        if (f_self_test)
-        {
-            // Use the standard error reporting for the platform: stderr for Linux and
-            // OutputDebugString() for Windows.  If the self test fails return -1.
-            
-            if (!self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
-                return -1;
-        }
-    
-        // Initialize the allocator and create a list
-        
-        mem_init();
-        list = mem_create(struct list);
-        list_init(list);
-    
-        // ...Run the program...
-    
-        list_clear(list);
-        mem_free(list);
-    
-        // Uninitialize allocator and report leaks using mem_leak_detected function
-        
-        mem_uninit(mem_leak_detected, NULL);
-     
-        return 0;
-    }
-{% endhighlight %}
+```
+int main(int argc, char **argv)
+{
+struct list *list;
+
+parse_args(argc, argv);  // Scan parameters to see if f_self_test flag should be set
+
+if (f_self_test)
+{
+    // Use the standard error reporting for the platform: stderr for Linux and
+    // OutputDebugString() for Windows.  If the self test fails return -1.
+
+    if (!self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
+	return -1;
+}
+
+// Initialize the allocator and create a list
+
+mem_init();
+list = mem_create(struct list);
+list_init(list);
+
+// ...Run the program...
+
+list_clear(list);
+mem_free(list);
+
+// Uninitialize allocator and report leaks using mem_leak_detected function
+
+mem_uninit(mem_leak_detected, NULL);
+
+return 0;
+}
+```
 
 ### Self-Test Template
 
