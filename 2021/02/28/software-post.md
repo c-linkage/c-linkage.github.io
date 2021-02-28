@@ -50,7 +50,7 @@ The skeleton of the main program is below. It parses the command line to see if 
 
 The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
 
-```C
+```c
 int main(int argc, char **argv)
 {
     struct list *list;
@@ -115,7 +115,7 @@ The self-test for the list module is reviewed first; the memory allocator is too
 
 To start with, consider the programming interface for `list`.
 
-```C
+```c
 // Initialize a list 
 void list_init(struct list *list);
 
@@ -141,7 +141,7 @@ Using the template from above, the self-test for the list uses the `SELF_TEST()`
 
 For this test, I chose to allocate the list on the stack instead of on the heap because I only want to test the list _implementation_ for memory leaks; the `list` object will get cleaned up automatically when the test completes.
 
-```C
+```c
 SELF_TEST(list, SELF_TEST_LEVEL_DEFAULT)
 {
     struct list l_list;             // Allocate a list on the stack to avoid early heap use
@@ -182,7 +182,7 @@ The self-test for the list shows a relatively simple test using only the default
 
 As mentioned in the last section, the memory allocator is a bit complex. Just as with the list, the plan for the allocator self-test begins by looking at the interface.
 
-```C
+```c
 // Function pointer definition for reporting the location of a memory leak. 
 // An opaque 'data' pointer is also passed in from the mem_uninit() call in
 // case your specific implementation needs extra data like a file handle.
@@ -213,7 +213,7 @@ The `SELF_TEST()` macro gets `memory` as the name of the subsystem being tested 
 
 The first test in the self-test is the simplest: allocate some memory and free it, verifying that nothing has leaked. The parameters to `mem_uninit()`  and the condition in the `SELF_TEST_ASSERT()` macro are left blank for now because it's not yet clear what _should_ be passed.
 
-```C
+```c
 SELF_TEST(memory, SELF_TEST_LEVEL_1)
 {
     int *p;
@@ -241,7 +241,7 @@ Fortunately, the `mem_uninit()` function also has an opaque  `data` parameter th
 
 To capture the leak data, a structure is needed that can hold the leak location information.
 
-```C
+```c
 struct mem_self_test_data {
     const char *file;
     int line;
@@ -250,7 +250,7 @@ struct mem_self_test_data {
 
 Next, the reporting function is defined. In it, the leak location information -- the filename and line number of where the original allocation took place -- are captured into the `mem_self_test_data` structure. Take note of the `SELF_TEST_FUNC` macro in the function definition.
 
-```C
+```c
 static void SELF_TEST_FUNC mem_report_self_test(const char *file, int line, void *data)
 {
     struct mem_self_test_data *mstd = (struct mem_self_test_data *)data;
@@ -264,7 +264,7 @@ This function is only used during testing,  and since one of the requirements fo
 
 With the reporting function and leak location structures now defined, the missing parameters to `mem_uninit()` can be filled in and the captured leak information can be tested.  Since the expectation is that no memory is leaked, the `file` and `line` fields of the `mem_self_test_data` structure should remain unchanged.
 
-```C
+```c
 SELF_TEST(memory, SELF_TEST_LEVEL_1)
 {
     struct mem_self_test_data mstd;
@@ -297,7 +297,7 @@ failure:
 
 Earlier, you saw the self-test system kicked off by this call:
 
-```C
+```c
 self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
 ```
 
@@ -305,7 +305,7 @@ What isn't clear from this call is that `SELF_TEST_SYSTEM_REPORT`  is actually a
 
 The self-test reporting function has three arguments: a string message, a file name, and a line number;  this should be enough information to zero in on whichever test failed.
 
-```C
+```c
 typedef void (SELF_TEST_DECL *self_test_report_pf)(
     const char *msg,     // Message to report
     const char *file,    // Filename from which error is reported
@@ -317,7 +317,7 @@ At any time during a self-test you can call the self-test report function to emi
 
 For example:
 
-```C
+```c
 SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
 {
     self_test_report("What's the difference between Dubai and Abu Dabi?", __FILE__, __LINE__);
@@ -338,26 +338,28 @@ The output of this self-test might look something like this, with each reported 
    
 The self-test framework was designed to be relatively quiet, outputting only the name of the self-test being run and any detected errors.  But if you want to emit a messsage that doesn't look like an error or warning, you can pass in NULL for the file parameter...
 
-    SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
-    {
-        self_test_report("What's the difference between Dubai and Abu Dabi?", NULL, 0);
-        self_test_report("The people in Dubai don't like the Flintstones...", NULL, 0);
-        self_test_report("...but the people in Abu Dabi do!", NULL, 0);
-        return 1;
-    }
+```c
+SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
+{
+    self_test_report("What's the difference between Dubai and Abu Dabi?", NULL, 0);
+    self_test_report("The people in Dubai don't like the Flintstones...", NULL, 0);
+    self_test_report("...but the people in Abu Dabi do!", NULL, 0);
+    return 1;
+}
+```
 
 and the message will be emitted without file or line information
 
-> self-test: info: starting self test...
-> self-test: info: test jokes
-> What's the difference between Dubai and Abu Dabi?
-> The people in Dubai don't like the Flintstones...
-> ...but the people in Abu Dabi do!
-> self-test: info: self-test complete
+    self-test: info: starting self test...
+    self-test: info: test jokes
+    What's the difference between Dubai and Abu Dabi?
+    The people in Dubai don't like the Flintstones...
+    ...but the people in Abu Dabi do!
+    self-test: info: self-test complete
 
 Here is an updated memory self-test that reports the name of the test being run.
 
-```C
+```c
 SELF_TEST(memory, SELF_TEST_LEVEL_1)
 {
     struct mem_self_test_data mstd;
@@ -392,13 +394,13 @@ failure:
 
 The output of this self-test might look something like this:
 
-> self-test: info: starting self test...
-> self-test: info: test memory
-> memory: initializing the memory subsystem
-> memory: allocating an integer on the heap
-> memory: freeing the integer on the heap
-> memory: unintializing the memory subsystem
-> self-test: info: self-test complete
+    self-test: info: starting self test...
+    self-test: info: test memory
+    memory: initializing the memory subsystem
+    memory: allocating an integer on the heap
+    memory: freeing the integer on the heap
+    memory: unintializing the memory subsystem
+    self-test: info: self-test complete
 
 ## Implementation
 
@@ -416,13 +418,13 @@ The self-test framework requires multiple sections, and so to group them togethe
 
 There are three primary code sections created under the Microsoft tool chain:
 
-> slftsti = "self test initializer" - array of function pointers to self tests
-> slftstt = "self test text" - executable code for all self tests
-> slftstr = "self test read-only" - constant strings used to report self test errors
+    slftsti = "self test initializer" - array of function pointers to self tests
+    slftstt = "self test text" - executable code for all self tests
+    slftstr = "self test read-only" - constant strings used to report self test errors
 
 The `slftsti` section is subdivided into twelve subsections, ten of which contain the arrays of pointers to the self tests; the last two subsections act as "bookends" that bound the area of memory to be searched for function pointers.
 
-```C
+```c
 // Always use C linkage
 
 #define SELF_TEST_DECL __cdecl
@@ -479,7 +481,7 @@ A challenge with dealing with the Microsoft tool chain is that there are no alig
 
 Before we can run a self-test, however, we have to _define_ a self-test and get it into the right section using the following macros:
 
-```C
+```c
 #define SELF_TEST_FUNC __declspec(code_seg("slftstt")) SELF_TEST_DECL
 #define SELF_TEST_RO __declspec(allocate("slftstr"))
 #define SELF_TEST_LEVEL(l) __declspec(allocate(l))
@@ -508,7 +510,7 @@ Given the first three macros, the `SELF_TEST()` macro is a little easier to unde
 
 To complete the example, consider the following extract from the `jokes.c` example earlier:
 
-```C
+```c
 SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
 {
     self_test_report("What's the difference between Dubai and Abu Dabi?", NULL, 0);
@@ -520,7 +522,7 @@ SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
 
 After expanding all of the macros and adding some comments, the full implementation becomes clear:
 
-```C
+```c
 // Forward-declare the test
 extern int __declspec(code_seg("slftstt")) __cdecl self_test_jokes(self_test_report_pf);
 
@@ -547,29 +549,29 @@ It should be clear now that the initializer section `slftsti` gets populated wit
 
 For our sample program, we can confirm that the descriptor pointers are in the correct section by using `dumpbin`:
 
->    SECTION HEADER #6
->     slftsti name
->          10 virtual size
->       26000 virtual address (00426000 to 0042600F)
->         200 size of raw data
->       22800 file pointer to raw data (00022800 to 000229FF)
->           0 file pointer to relocation table
->           0 file pointer to line numbers
->           0 number of relocations
->           0 number of line numbers
->    50000040 flags
->             Initialized Data
->             Shared
->             Read Only
->    
->    RAW DATA #6
->      00426000: 01 00 00 00 68 4F 42 00 1C 40 42 00 01 00 00 00  ....hOB..@B.....
+    SECTION HEADER #6
+     slftsti name
+          10 virtual size
+       26000 virtual address (00426000 to 0042600F)
+         200 size of raw data
+       22800 file pointer to raw data (00022800 to 000229FF)
+           0 file pointer to relocation table
+           0 file pointer to line numbers
+           0 number of relocations
+           0 number of line numbers
+    50000040 flags
+             Initialized Data
+             Shared
+             Read Only
+    
+    RAW DATA #6
+      00426000: 01 00 00 00 68 4F 42 00 1C 40 42 00 01 00 00 00  ....hOB..@B.....
 
 This example is compiled fora 32-bit architecture, so each pointer takes four bytes.  The first four bytes and the last four bytes are the bookend pointers used to bound the section. Bytes 5 through 8 form the pointer 0x00424F68 which points  to the memory system self-test; bytes 9 through 12 form the pointer 0x0042401C which points to the list system self-test.  It just so happens that in this example there are no gaps in the initializer section, so there will be no NULL pointers to skip. But having gaps in the initializer sectionis quite common, so the code must be prepared for that.
 
 Actually _running_ the self-tests is rather simple: scan the self-test initializer section `slftsti` between the bookends looking for non-NULL pointers. When a non-NULL pointer is found, interpret that pointer as the address of a self-test descriptor. Print the descriptor message and then run the self-test.
 
-```C
+```c
 int sys_self_test_run(self_test_report_pf report, unsigned flags)
 {
     const struct self_test **test;
@@ -613,5 +615,3 @@ int sys_self_test_run(self_test_report_pf report, unsigned flags)
 ## Conclusion
 
 My dislike of writing mocks combined with the dread of having to select from the many different unit-testing frameworks inspired me to take the concept of a hardware power-on self test (POST) and applied it to software. The Software POST integrates quite easily into both new and existing code because there is no need to manually register test functions in the project. Taking advantage of the compiler directives to prevent mixing test and production code means you can leave the tests in a production release without worring about taking up extra space at runtime.  Finally, when you opt to run the tests each time the program is executed, it foces the programmer to keep the tests up to date and it gives the developer a better feeling that the software will run correctly.
-
-
