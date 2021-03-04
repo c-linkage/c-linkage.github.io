@@ -3,7 +3,7 @@
 
 >_Abstract: A 'Power On Self Test (POST)' framework for the C Programming Language is described wherein the framework allows the developer to create unit test routines in the same translation unit as the code, assign testing routines to dependency layers, all while ensuring the testing code does not affect the size of the program at runtime._
 
->_Reference: The code for this framework and a sample prgoram can be found [here](https://github.com/c-linkage/software-post)._
+>_Reference: The code for this framework and a sample program can be found [here](https://github.com/c-linkage/software-post)._
 
 After reading yet another article on Test Driven Development (TDD) or Unit Testing or some such thing, my fur was up.  Just _thinking_ about all of the effort that goes into testing gave me hives: evaluating different test frameworks and down-selecting, integrating the test framework into the build and deployment systems, developing the tests and mocks, making sure the actual code implements the same behavior of the mocks, scanning the testing logs for failures, etc.  It all just seemed to be just so much ... _activity_ ... that could be better spent, you know, _developing_.
 
