@@ -1,17 +1,17 @@
 
 # Software Power On Self-Test
 
->_Abstract: A 'Power On Self Test (POST) framework for the C Programming Language is described wherein the framework allows the developer to create testing routines in the same translation unit as the code, assign testing routines to dependency layers, and ensures the testing code does not affect the size of the program at runtime._
+>_Abstract: A 'Power On Self Test (POST)' framework for the C Programming Language is described wherein the framework allows the developer to create unit test routines in the same translation unit as the code, assign testing routines to dependency layers, all while ensuring the testing code does not affect the size of the program at runtime._
 
->_Reference: The code for this framework and a sample prgoram can be found [here](https://github.com/c-linkage/software-post)_
+>_Reference: The code for this framework and a sample prgoram can be found [here](https://github.com/c-linkage/software-post)._
 
-After reading yet another article on Test Driven Development (TDD) or Unit Testing or some such thing, it set me off.  Just thinking about all of the effort that goes into testing gave me hives: evaluating different test frameworks and down-selecting, integrating the test framework into the build and deployment systems, developing the tests and mocks, making sure the actual code implements the same behavior of the mocks, scanning the testing logs for failures, etc.  It all just seemed to be just so much ... _activity_ ... that could be better spent, you know, _developing_.
+After reading yet another article on Test Driven Development (TDD) or Unit Testing or some such thing, my fur was up.  Just _thinking_ about all of the effort that goes into testing gave me hives: evaluating different test frameworks and down-selecting, integrating the test framework into the build and deployment systems, developing the tests and mocks, making sure the actual code implements the same behavior of the mocks, scanning the testing logs for failures, etc.  It all just seemed to be just so much ... _activity_ ... that could be better spent, you know, _developing_.
 
-Now, don't get me wrong: **testing is important**.  But having been in development for 20 years before [Kent Beck popularized the concept of Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development), I had been forced to come up with my own system for making correct software: a rapid development cycle that interleaved coding and testing, sometimes including throw-away test harnesses.
+Now, don't get me wrong: **testing is important**.  But having been in development for 20 years before [Kent Beck popularized the concept of Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development), I had to come up with my own system for making correct software: a rapid development cycle that interleaved coding and testing, sometimes including throw-away test harnesses.
 
-The reason I got mad after reading that article was because my project had hit a level of complexity where some kind of unit testing was becoming a necessity. Just _thinking_ about all of the effort required to back-fill tests for half a million lines of C and C# code... well, my brain (or was it my ego?) wasn't having it.
+I realized later that the reason I got mad was because my project had hit a level of complexity where unit testing had become necessary, and the article just happend to poke a sore spot. Back-filling tests for half a million lines of C and C# code was not my idea of a good time.
 
-It was then that I was struck by an idea:
+But then I was struck by an idea:
 
 > **Hardware has a [Power On Self Test (POST)](https://en.wikipedia.org/wiki/Power-on_self-test) where successive layers are validated using the capabilities and functions of other already validated layers.  So why can't I have a "power on self test" for software? If I validate the low-level subsystems first, then I could validate successively higher level systems using those lower systems. This would give me both unit testing _and_ integration testing without having to write any mocks.**
 
@@ -22,35 +22,35 @@ Oh yeah.  [Let's do this](https://youtu.be/K2-3YacveiQ)!
 I quickly hashed out my requirements:
 
 1. Running the tests should be optional.
-2. The testing code should not affect the size of the program at runtime, but it could inflate the size of the binary.
+2. The testing code should not affect the size of the program at runtime, but it _could_ inflate the size of the binary.
 3. I should be able to create tests in whatever translation unit I wanted.
 4. Test functions should not require "registration" with some master test coordinator.
 5. The framework should be cross-platform (Windows and Linux), but it's okay if it only works on x86 or x64 hardware.
 
 Item (1) was easy: pass a command-line option to the program that would trigger the Software POST.
 
-Item (2) should be easy as well: just put all of the testing code into its own [section](https://en.wikipedia.org/wiki/Data_segment) in the compiled binary. When the tests are run the operating system will take care of loading the tests during execution and discarding them when completed.
+Item (2) should be easy as well: put all of the testing code into its own [section](https://en.wikipedia.org/wiki/Data_segment) in the compiled binary and the operating system will take care of loading the tests during execution and discarding them when completed.
 
-Item (3) ended up being a bit of a bonus.  I originally set that requirement so I could put the tests into a translation unit _other_ than the one containing the code under test. But during development, I realized it was actually better to put the test and the code _in the same file_. Having both the test and code together meant it was trivial to keep them synchronized over time. And because the tests were executed _every time I ran the program_, it was immediately obvious when the two were out of sync. I was forced to update the test because the program wouldn't even _run_ unless the code and test were in sync.
+Item (3) ended up being a bit of a bonus.  I originally set that requirement so I could put the tests into a translation unit _other_ than the one containing the code under test. But I realized during development that it was actually better to put the test and the code in the same file. Doing so meant it was trivial to keep the code and the tests synchronized over time. Combining that with always running the tests when debugging meant I was forced to update the test when out of sync, otherwise the program wouldn't even run!
 
 Item (4) was going to be tricky. But I recalled reading in [Raymond Chen](https://devblogs.microsoft.com/oldnewthing/author/oldnewthing)'s blog [The Old New Thing](https://devblogs.microsoft.com/oldnewthing/)  a series of articles
-([1](https://devblogs.microsoft.com/oldnewthing/20181107-00/?p=100155), [2](https://devblogs.microsoft.com/oldnewthing/20181108-00/?p=100165), [3](https://devblogs.microsoft.com/oldnewthing/20181109-00/?p=100175)) about using linker sections to arrange data in a way that could help for development on Windows. If memory serves, it's the same technique used for construction of static objects in C++.
+([1](https://devblogs.microsoft.com/oldnewthing/20181107-00/?p=100155), [2](https://devblogs.microsoft.com/oldnewthing/20181108-00/?p=100165), [3](https://devblogs.microsoft.com/oldnewthing/20181109-00/?p=100175)) about using linker sections to arrange data in a way that could help for developing the framework on Windows.
 
-Item (5) was going to be challenging.  Although I cut my C programming teeth on UNIX, my career path has had me programming Windows for almost 20 years. Figuring out the [incantations](https://i.imgur.com/aqg21UI.jpeg) needed to get **gcc** and **ld** to produce an "initializer" style section was going to take some doing. Fortunately, my reading of the [Linux source code](https://elixir.bootlin.com/linux/latest/source) (just for fun, honest!) showed me some tips on how to make it work.
+Item (5) was going to be challenging.  Although I cut my C programming teeth on UNIX, my career path has had me programming Windows for many years. Figuring out the [incantations](https://i.imgur.com/aqg21UI.jpeg) needed to get **gcc** and **ld** to produce an "initializer" style section was going to take some doing. Fortunately, my pass-time activity of browsing the [Linux source code](https://elixir.bootlin.com/linux/latest/source) gave me some hints.
 
 ## Final Product 
 
-Before delving into the implementation details, let's see the final product first.  
+Before delving into the implementation details, let's see the final product first.
 
-The sample program I developed to test the framework is a simple number guessing game where the user tries to guess one of the ten numbers selected at random from the range of 1 to 100. The numbers are selected and stored in a list whose elements are managed on the heap. 
+The sample program I developed to test the framework is a simple number guessing game where the user tries to guess one of the ten numbers selected at random from the range of 1 to 100. The numbers are selected and stored in a singly-linked list whose elements are managed on the heap. 
 
 The heap uses a custom allocator to make it possible to detect memory leaks, so it requires a self-test. And since the list implementation relies on the custom allocator, the allocator must be tested before the list.
 
 ### Running the Self Test
 
-The skeleton of the main program is below. It parses the command line to see if a self-test is requested, and, if so, runs the self-test using the `self_test_run()` function.  For this example, the default output stream for the platform (Windows or Linux) is used, and the set of flags that control the self-test behavior is set to `SELF_TEST_FLAG_NONE` to use the default options.
+The skeleton of the main program is below. It parses the command line to see if a self-test is requested, and, if so, runs the self-test using the `self_test_run()` function.  For this example, the default self-test output stream for the platform (Windows or Linux) is used, and the flags that control the self-test behavior are set to  `SELF_TEST_FLAG_NONE` to use the default options.
 
-The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so the program will likely crash anyway.
+The program exits with a return value of -1 when the self-test fails. Returning on self-test failure is important for two reasons. First, a self-test failed, so the program likely won't run correctly anyway. Second, the failed self-test likely left the application in an inconsistent state, so continuing execution will likely result in a crash.
 
 ```c
 int main(int argc, char **argv)
@@ -112,11 +112,11 @@ failure:
 }
 ```
 
-_Yes_, the self-test framework requires using `goto`, but that is pretty standard fare for a C program where exceptions don't exist.
+_Yes_, the self-test framework requires using `goto`, but that is pretty standard for a C program where exceptions don't exist.
 
 ### The List Self-Test
 
-The self-test for the list module is reviewed first; the memory allocator is too complex and will be reviewed later.
+The self-test for the list module is reviewed first; the memory allocator is too complex introdctory purposes and will be reviewed later.
 
 To start with, consider the programming interface for `list`.
 
@@ -142,7 +142,7 @@ void list_remove(struct list *list, int value);
 
 The six functions above will each need to be tested. And because some of the functions can't be tested without first using other functions (you can't delete an item before you've added one) there will likely be many more tests to validate the interactions between the functions.
 
-Using the template from above, the self-test for the list uses the `SELF_TEST()` macro with  `list` as the name of the subsystem  being tested and `SELF_TEST_DEFAULT_LEVEL` to indicate that this test should be run at the default testing level -- not too high, and not too low.  Temporary objects required for the test are declared and initialized, and each of the expected results of each function are verified using the `SELF_TEST_ASSERT()` macro.
+Using the template from above, the self-test for the list uses the `SELF_TEST()` macro with  `list` as the name of the subsystem  being tested and `SELF_TEST_DEFAULT_LEVEL` to indicate that this test should be run at the default testing level -- not too high, and not too low.  Temporary objects required for the test are declared and initialized, and the expected results of each function are verified using the `SELF_TEST_ASSERT()` macro.
 
 For this test, I chose to allocate the list on the stack instead of on the heap because I only want to test the list _implementation_ for memory leaks; the `list` object will get cleaned up automatically when the test completes.
 
@@ -184,9 +184,9 @@ The self-test for the  `list` object relies on the memory allocator for creating
 
 ### The Memory Allocator Self-Test - Test Support Functions
 
-The self-test for the list shows a relatively simple test using only the default self-test options.  But what if a test needs something more, like special reporting requirements, or functions only needed during testing?  The self-test framework has your back here, too.  
+The self-test for the list shows a relatively simple test using only the default self-test options.  But what if a test needs something more, like special reporting requirements? Or maybe it requires supporting function needed only during the test?  The self-test framework has your back here, too.  
 
-As mentioned in the last section, the memory allocator is a bit complex. Just as with the list, the plan for the allocator self-test begins by looking at the interface.
+As with the list, planing the self-test for the allocator begins by looking at the interface.
 
 ```c
 // Function pointer definition for reporting the location of a memory
@@ -215,9 +215,9 @@ extern void *mem_alloc_internal(size_t size, const char *file, int line);
 extern void mem_free_internal(void *ptr);
 ```
 
-The use of a reporting function in `mem_uninit()` to show leak locations complicates the self-test. But before worrying about that, it's best to build a self-test stub that can be updated as each complexity point is addressed.
+The use of a reporting function in `mem_uninit()` to show leak locations complicates this self-test. But before worrying about that, it's best to build a self-test stub that can be updated as each complexity point is addressed.
 
-The `SELF_TEST()` macro gets `memory` as the name of the subsystem being tested and `SELF_TEST_LEVEL_1` as the test level, indicating that test is on the lowest level and  should be run before all other higher level tests.
+To start, the `SELF_TEST()` macro gets `memory` as the name of the subsystem being tested and `SELF_TEST_LEVEL_1` as the test level, indicating that test is on the lowest level and  should be run before all other higher level tests.
 
 The first test in the self-test is the simplest: allocate some memory and free it, verifying that nothing has leaked. The parameters to `mem_uninit()`  and the condition in the `SELF_TEST_ASSERT()` macro are left blank for now because it's not yet clear what _should_ be passed.
 
@@ -256,7 +256,7 @@ struct mem_self_test_data {
 };
 ```
 
-Next, the reporting function is defined. In it, the leak location information -- the filename and line number of where the original allocation took place -- are captured into the `mem_self_test_data` structure. Take note of the `SELF_TEST_FUNC` macro in the function definition.
+Next, the reporting function is defined. In it, the leak location information -- the filename and line number of where the original allocation took place -- are captured into the `mem_self_test_data` structure.
 
 ```c
 static void SELF_TEST_FUNC mem_report_self_test(
@@ -271,7 +271,7 @@ static void SELF_TEST_FUNC mem_report_self_test(
 }
 ```
 
-This function is only used during testing,  and since one of the requirements for this framework was that testing code shouldn't mix with production code, the `SELF_TEST_FUNC` macro is used here to make sure the code gets installed into the correct code segment to avoid mixing test code with production code.
+Note the `SELF_TEST_FUNC` macro used to decorate the function. Because this function is only used during testing, its important that its code not mix with production code. The `SELF_TEST_FUNC` macro is used here to make sure the code gets installed into the code segment set aside for testing code.
 
 With the reporting function and leak location structures now defined, the missing parameters to `mem_uninit()` can be filled in and the captured leak information can be tested.  Since the expectation is that no memory is leaked, the `file` and `line` fields of the `mem_self_test_data` structure should remain unchanged.
 
@@ -312,9 +312,9 @@ Earlier, you saw the self-test system kicked off by this call:
 self_test_run(SELF_TEST_SYSTEM_REPORT, SELF_TEST_FLAG_NONE))
 ```
 
-What isn't clear from this call is that `SELF_TEST_SYSTEM_REPORT`  is actually a sentinel value (a NULL pointer) indicating the default reporting function for your platform should be used. Of course, you can override the default with your own function if you want, but whatever  function is specified gets passed as the  hidden argument `self_test_report` to the body of the `SELF_TEST()`.  
+What isn't clear from this call is that `SELF_TEST_SYSTEM_REPORT` is actually a sentinel value (technically an alias for a `NULL` pointer) indicating that the default reporting function for your platform should be used. Naturally, you can override the default use your own function if you want. But whatever self-test reporting function is used gets passed as the hidden argument `self_test_report` to the body of the `SELF_TEST()`.  
 
-The self-test reporting function has three arguments: a string message, a file name, and a line number;  this should be enough information to zero in on whichever test failed.
+The self-test reporting function has three arguments: a string message, a file name, and a line number; this should be enough information to zero in on whichever test failed.
 
 ```c
 typedef void (SELF_TEST_DECL *self_test_report_pf)(
@@ -326,7 +326,7 @@ typedef void (SELF_TEST_DECL *self_test_report_pf)(
 
 At any time during a self-test you can call the self-test report function to emit a message into the self-test log.
 
-For example:
+For example, given the following self-test 
 
 ```c
 SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
@@ -338,7 +338,7 @@ SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
 }
 ```    
 
-The output of this self-test might look something like this, with each reported line looking like a compiler-emitted error or warning message suitable for parsing by your IDE of preference:
+the output written to the self-test log might look something like this:
 
     self-test: info: starting self test...
     self-test: info: test jokes
@@ -347,7 +347,9 @@ The output of this self-test might look something like this, with each reported 
     jokes.c(17): ...but the people in Abu Dabi do!
     self-test: info: self-test complete
    
-The self-test framework was designed to be relatively quiet, outputting only the name of the self-test being run and any detected errors.  But if you want to emit a messsage that doesn't look like an error or warning, you can pass in NULL for the file parameter...
+Note that each reported line is designed to look like a compiler-emitted error or warning message suitable for parsing by your IDE of preference.  This helps in Visual Studio, for example, where the use can double-click the message in the Output window and the IDE will transport you directly to the file and line generating the message.
+
+The self-test framework was designed to be relatively quiet, outputting only the name of the self-test being run and any detected errors.  But if you want to emit a messsage that doesn't look like an error or warning, you can pass in `NULL` for the file parameter
 
 ```c
 SELF_TEST(jokes, SELF_TEST_LEVEL_DEFAULT)
@@ -417,23 +419,23 @@ The output of this self-test might look something like this:
 
 The self-test implementation uses a mixture of platform-dependent and platform-independent functions.
 
-The platform-independent section is a very thin wrapper around the platform-specific functions and, as such, is not that interesting: it mainly does things like parameter validation and emitting some basic messages about beginning and ending the self-test.
+The platform-independent section is a very thin wrapper around the platform-dependent functions and, as such, is not that interesting: it mainly does things like parameter validation and emitting some basic messages about beginning and ending the self-test.
 
-The more interesting parts are actually the platform-specific functions. This article will discuss the Windows-specific functions as I  am primarily a Windows developer and I feel more comfortable discussing the details.  But fear not: the Linux-specific functions work quite similarly, except for specific commands to the compiler and linker needed to place code into the correct sections.
+The more interesting parts are the platform-dependent functions. This article will discuss the Windows-specific functions as I am primarily a Windows developer and I feel more comfortable discussing the details.  But fear not: the Linux-specific functions work quite similarly, except for the compiler- and linker-specific commands needed to place code into the correct sections.
 
 ### Windows Self-Test Driver
 
 Sections in a [Portable Excutable file](https://en.wikipedia.org/wiki/Portable_Executable) are each given names. The standard names you might see are "text" for the machine code, "bss" for uninitialized data (typically filled in with zeros by the operating system loader), "data" for initialized data, and "rdata" for read-only data such as constants.
 
-The self-test framework requires multiple sections, and so to group them together I chose  `slftst` -- short for "self test"  -- as the based name for these related sections.
+The self-test framework requires multiple sections for its code and data, so I chose  group them together with the prefix `slftst` -- short for "self test".
 
 There are three primary code sections created under the Microsoft tool chain:
 
-* `slftsti` = "self test initializer" - array of function pointers to self tests
+* `slftsti` = "self test initializer" - array of function pointers to self test descriptors
 * `slftstt` = "self test text" - executable code for all self tests
-* `slftstr` = "self test read-only" - constants (e.g. strings) used during the self-test
+* `slftstr` = "self test read-only" - constants (e.g. strings, self-test descriptors) used during the self-test
 
-The `slftsti` section is divided into twelve subsections, ten of which contain the arrays of pointers to the self tests; the last two subsections act as "bookends" that bound the section of memory to be searched for function pointers.
+The `slftsti` section is divided into twelve subsections, ten of which contain the arrays of pointers to the self tests. The last two subsections act as "bookends" that bound that section in memory allowing the self-test driver to scan memory looking for self-test descriptor pointers.
 
 ```c
 // Always use C linkage
@@ -494,7 +496,7 @@ The Microsoft tool chain allows section names with `$` in them. The part of the 
 
 A challenge when dealing with the Microsoft tool chain is that there are no padding guarantees when the section is finalized. That means that there could be a gap of arbitrary size in section `test` between the contents of `test$a` and `test$b`". What we _are_ guaranteed is that the padding will always be zero.  This is why the bookend pointers `win32_self_test_start` and `win32_self_test_end` are initialized to the "illegal" non-NULL value of 1 to distinguish them from the padding.
 
-Before we can run a self-test, however, we have to _define_ a self-test and get it into the right section using the following macros:
+Before we can run a self-test, a self-test must be defined and installed into the correct section using the following macros:
 
 ```c
 #define SELF_TEST_FUNC __declspec(code_seg("slftstt")) SELF_TEST_DECL
@@ -511,14 +513,14 @@ Before we can run a self-test, however, we have to _define_ a self-test and get 
 
 The first three macros encapsulate the compiler-specific text and serve to make the `SELF_TEST()` macro easier to read.  
 
-* `SELF_TEST_FUNC` decorates a function to give it the right calling convention `SELF_TEST_DECL` and to place it into the self-test code segment `slftstt`.
-* `SELF_TEST_RO` decorates a variable to place it into the self-test read-only section`slftstr`; it is important that variables decorated with `SELF_TEST_RO` are also decorated with `const` when necessary to avoid section permission mismatches.
+* `SELF_TEST_FUNC` decorates a function to give it the calling convention `SELF_TEST_DECL` and to place it into the self-test code segment `slftstt`.
+* `SELF_TEST_RO` decorates a variable to place it into the self-test read-only section`slftstr`. In almost all cases, variables decorated with `SELF_TEST_RO` should also be  decorated with `const` to avoid section permission mismatches.
 * `SELF_TEST_LEVEL(l)` decorates the pointer to the self-test descriptor to place it into the self-test initializer section appropriate for the testing level.
 
 Given the first three macros, the `SELF_TEST()` macro is a little easier to understand:
 
 1. Forward-declare the self-test function, whose name is composed of `self_test_` and the name of the subsystem being tested; this is needed later when defining the self-test descriptor.
-2. Define a text string to be printed when the self-test is executed and install the string into the self-test read-only section.
+2. Define a text string to be printed when the self-test is executed, and install that string into the self-test read-only section.
 3. Create the self-test descriptor -- a structure containing the self-test message and a pointer to the self-test code -- and install it into the self-test read-only section.
 4. Install a pointer to the descriptor into the self-test initialization section for the requested test level
 5. Begin the definition of the self-test function.
@@ -562,7 +564,7 @@ int __declspec(code_seg("slftstt")) __cdecl self_test_jokes(self_test_report_pf 
 
 It should be clear now that the initializer section `slftsti` gets populated with pointers to self-test descriptors. The decriptor pointers within the section are partially ordered: all Level 1 pointers are installed before all Level 2 pointers, but the order of descriptor pointers _within_ a level is arbitrary. The reason for installing pointers in the initializer rather than the self-test descriptors themselves is that the alignment and padding requirements for pointers are well known, and this makes scanning the section much easier.
 
-For the sample program, the fact that the descriptor pointers are ordered correctly and are in the right section can be confirmed by using `dumpbin`:
+For the sample program, verifying that the descriptor pointers are ordered correctly in the right section can be confirmed by using `dumpbin`:
 
     SECTION HEADER #6
      slftsti name
@@ -631,4 +633,4 @@ int sys_self_test_run(self_test_report_pf report, unsigned flags)
 
 ## Conclusion
 
-My dislike of writing mocks combined with the dread of having to select from the many different unit-testing frameworks inspired me to take the concept of a hardware power-on self test (POST) and apply it to software. The Software POST integrates quite easily into both new and existing code because there is no need to manually register test functions in the project. Taking advantage of the compiler directives to prevent mixing test and production code means you can leave the tests in a production release without worring about taking up extra space at runtime.  Finally, when you opt to run the tests each time the program is executed, it forces the programmer to keep the code and the tests synchronized, giving the developer a better feeling that the software will run correctly.
+My dislike of writing mocks combined with the dread of having to select from the many different unit-testing frameworks inspired me to take the concept of a hardware power-on self test (POST) and apply it to software. The Software POST integrates quite easily into both new and existing code because there is no need to manually register test functions in the project and because there is no need to configure an external test driver. Integration testing is virtually free because tests can take advantage of subsystems verified earlier in the POST. Taking advantage of the compiler directives to prevent mixing test and production code means you can leave the tests in a production release without worring about the tests taking up space at runtime.  Finally, opting to run the tests each time the program is executed forces the programmer to keep the code and the tests synchronized.
