@@ -4,4 +4,4 @@ kramdown:
   input: GFM
   syntax_highlighter: rouge
 title: c-linkage
-description: Always left unfinished
+description: Things left undone
