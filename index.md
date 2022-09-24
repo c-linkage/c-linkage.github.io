@@ -1,1 +1,1 @@
-Everything is left undone.
+Nothing is ever finished.
