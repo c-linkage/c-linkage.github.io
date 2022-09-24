@@ -11,8 +11,8 @@ Brother Michael was ahead of him on the stairs carrying the brushes, the mop,
 and the lantern. Being the junior-most member of the Order by at least
 fifteen years, Michael should, by all rights, be carrying the buckets; but
 he was also, by far, the least careful monk to call the monastery home.
-This was was Michael's fourth position here, and had somehow managed last
-week to -- despite the safety glass on the lantern -- light the mop on
+This was Michael's fourth position here, and he had somehow managed last
+week -- despite the safety glass on the lantern -- to light the mop on
 fire.
 
 Today, oblivious to the purpose he served as lamp holder, Michael
@@ -43,7 +43,7 @@ as to open the door?"
 and then carefully set down the brushes and mop as if they were made of
 glass.
 
-Having resumed his heavy burden, Brother Thomas was only slightly annoyed
+Brother Thomas, having resumed his heavy burden, was only slightly annoyed
 to see that the brushes and mop had been laid in his path.
 
 "Along the wall, Brother," he said, looking from the cleaning equipment to
@@ -59,11 +59,11 @@ difficult to open.
 
 Michael drew a wooden mallet from somewhere in his robe and struck the
 handles three or four times each to crack them loose. He then stuffed the
-mallet back into his robe and backed the two wing-nuts clean off the
-threads, then set them on the ground next to the brushes and mop.
+mallet back into his robe and backed the two wing-nuts clean off their
+threaded posts and set them on the ground next to the brushes and mop.
 
-Thomas, having set the buckets down near the door, withdrew a pry bar from
-his robes and handed it to Michael.
+Thomas, having himself set the buckets down near the door, withdrew a pry 
+bar from his robes and handed it to Michael.
 
 "If you'll do the honors."
 
@@ -71,22 +71,24 @@ Michael took off his robe and set it on a hook in the wall, leaving him
 wearing something that resembled a loincloth. He then took the pry bar and
 set to work at the door.  The tarred rope seal would be like hardened glue
 by now, and it was going to take quite some effort to get it open.
-Clearing the seal at the top and bottom of the door was usually done first
-because the surface area was smaller, but Brother Michael would have none
-of that.  Instead, he set the pry bar at the side of the door opposite the
-hinge and gave a mighty pull, the kind of pull that can only be peformed by
-the young and inexperienced.  After straining and grunting for what felt like
-minutes, the seal finally broke and the door cracked open.
 
-Thomas extended his hand, and Michael gave him back the pry bar.
+Clearing the seal at the top and bottom of the door was usually done first
+because the surface area was smaller, but Brother Michael had other ideas.
+He set the pry bar at the side of the door opposite the hinge and leaned 
+back against the bar to gave it a mighty pull. The kind of pull that can 
+only be peformed by the young and inexperienced.  After straining and grunting
+for what felt like minutes, the seal finally broke and the door cracked open.
+
+Thomas, now proud and exasperated, extended his hand to give Michael back the 
+pry bar.
 
 "Excellent work," said Thomas as he squirreled away the pry bar.  "Now
 finish with the door and we'll make quick work of cleaning the dry well."
 
 The door hinges were stiff, so Michael once again put his back into it and
 slowly pulled the door open.  As he did so, a pale hand fell through the door
-opening and clanged against the door flange.  The light from the lamp hanging
-by the door cast a slim beam into the well, and Thomas could just make out a
-human form in the dim light.
+opening and clanged against the door flange, drawing Thomas' attention. The
+light from the lamp hanging by the door cast a slim beam into the well, and
+Thomas could just make out a human form in the dim light.
 
-"Call the Abbot, Brother Michael.  And hurry!"
+"Get the Abbot, Brother Michael.  And hurry!"
